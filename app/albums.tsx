@@ -1,69 +1,85 @@
-import { useMemo } from "react";
+```tsx
 import {
-    FlatList,
-    SafeAreaView,
-    StyleSheet,
-    Text
+  FlatList,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
-import AlbumCard, { Album } from "../components/AlbumCard";
-import Colors from "../constants/Colors";
+import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
+import AlbumCard from "../components/AlbumCard";
 import { useSongs } from "../hooks/useSongs";
+
+interface Album {
+  id: string;
+  title: string;
+  songs: number;
+}
 
 export default function AlbumsScreen() {
 
   const { songs } = useSongs();
 
-  // ===========================
-  // AGRUPAR COMO ALBUMS
-  // ===========================
+  // Agrupar canciones por nombre de álbum (temporal)
+  const albums: Album[] = [];
 
-  const albums: Album[] = useMemo(() => {
+  songs.forEach((song) => {
 
-    const map: Record<string, Album> = {};
+    const albumName = "Álbum desconocido";
 
-    songs.forEach(song => {
+    const existing = albums.find(a => a.title === albumName);
 
-      // Simulación de álbum (porque MediaLibrary no siempre trae album)
-      const rawName = song.filename;
+    if (existing) {
 
-      const base = rawName.split("-")[0]?.trim() || "Unknown Album";
+      existing.songs++;
 
-      if (!map[base]) {
+    } else {
 
-        map[base] = {
+      albums.push({
 
-          id: base,
+        id: albumName,
 
-          name: base,
+        title: albumName,
 
-          artist: "Artista desconocido",
+        songs: 1
 
-          songs: 0
+      });
 
-        };
+    }
 
-      }
-
-      map[base].songs += 1;
-
-    });
-
-    return Object.values(map);
-
-  }, [songs]);
+  });
 
   return (
 
     <SafeAreaView style={styles.container}>
 
-      <Text style={styles.title}>
-        💿 Álbumes
-      </Text>
+      <View style={styles.header}>
+
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+
+          <Ionicons
+            name="chevron-back"
+            size={26}
+            color="#111"
+          />
+
+        </TouchableOpacity>
+
+        <Text style={styles.title}>
+          Álbumes
+        </Text>
+
+      </View>
 
       <Text style={styles.subtitle}>
-        Tu música organizada
+        {albums.length} álbum(es)
       </Text>
 
       <FlatList
@@ -72,25 +88,41 @@ export default function AlbumsScreen() {
 
         keyExtractor={(item) => item.id}
 
-        numColumns={2}
+        showsVerticalScrollIndicator={false}
 
-        contentContainerStyle={styles.list}
+        contentContainerStyle={{
+          paddingBottom: 30
+        }}
 
         renderItem={({ item }) => (
 
           <AlbumCard
-
             album={item}
-
-            onPress={() => {
-
-              console.log("Abrir álbum:", item.name);
-
-            }}
-
           />
 
         )}
+
+        ListEmptyComponent={
+
+          <View style={styles.empty}>
+
+            <Ionicons
+              name="albums-outline"
+              size={80}
+              color="#C7C7CC"
+            />
+
+            <Text style={styles.emptyTitle}>
+              No hay álbumes
+            </Text>
+
+            <Text style={styles.emptySubtitle}>
+              Los álbumes aparecerán cuando tu música tenga esta información.
+            </Text>
+
+          </View>
+
+        }
 
       />
 
@@ -106,36 +138,117 @@ const styles = StyleSheet.create({
 
     flex: 1,
 
-    backgroundColor: Colors.background,
+    backgroundColor: "#F5F5F7",
 
-    padding: 18
+    paddingTop: 55,
+
+    paddingHorizontal: 20
+
+  },
+
+  header: {
+
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    marginBottom: 12
+
+  },
+
+  backButton: {
+
+    width: 42,
+
+    height: 42,
+
+    borderRadius: 21,
+
+    backgroundColor: "#FFFFFF",
+
+    justifyContent: "center",
+
+    alignItems: "center",
+
+    marginRight: 15,
+
+    elevation: 4,
+
+    shadowColor: "#000",
+
+    shadowOpacity: 0.08,
+
+    shadowRadius: 8,
+
+    shadowOffset: {
+
+      width: 0,
+
+      height: 3
+
+    }
 
   },
 
   title: {
 
-    fontSize: 28,
+    fontSize: 32,
 
-    fontWeight: "bold",
+    fontWeight: "700",
 
-    color: Colors.text
+    color: "#111827"
 
   },
 
   subtitle: {
 
-    color: Colors.subtitle,
+    fontSize: 15,
 
-    marginTop: 4,
+    color: "#6B7280",
 
     marginBottom: 20
 
   },
 
-  list: {
+  empty: {
 
-    paddingBottom: 100
+    flex: 1,
+
+    justifyContent: "center",
+
+    alignItems: "center",
+
+    marginTop: 120
+
+  },
+
+  emptyTitle: {
+
+    marginTop: 18,
+
+    fontSize: 22,
+
+    fontWeight: "700",
+
+    color: "#111827"
+
+  },
+
+  emptySubtitle: {
+
+    marginTop: 10,
+
+    textAlign: "center",
+
+    color: "#6B7280",
+
+    fontSize: 15,
+
+    lineHeight: 22,
+
+    paddingHorizontal: 30
 
   }
 
 });
+```

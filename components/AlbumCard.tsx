@@ -11,78 +11,55 @@ import Colors from "../constants/Colors";
 
 export interface Album {
   id: string;
-  name: string;
+  title: string;
   artist?: string;
   songs: number;
 }
 
 interface Props {
   album: Album;
-  onPress: () => void;
+  onPress?: () => void;
 }
 
 export default function AlbumCard({
-
   album,
-
-  onPress
-
+  onPress,
 }: Props) {
 
   return (
 
     <TouchableOpacity
-
       style={styles.container}
-
       activeOpacity={0.8}
-
       onPress={onPress}
-
     >
 
       <View style={styles.cover}>
 
         <Ionicons
-
-          name="disc"
-
+          name="albums"
           size={55}
-
-          color={Colors.text}
-
+          color="#fff"
         />
 
       </View>
 
       <Text
-
         numberOfLines={1}
-
         style={styles.albumName}
-
       >
-
-        {album.name}
-
+        {album.title}
       </Text>
 
       <Text
-
         numberOfLines={1}
-
         style={styles.artist}
-
       >
-
-        {album.artist || "Artista desconocido"}
-
+        {album.artist ?? "Artista desconocido"}
       </Text>
 
       <Text style={styles.count}>
-
         {album.songs} canciones
-
       </Text>
 
     </TouchableOpacity>
@@ -94,91 +71,51 @@ export default function AlbumCard({
 const styles = StyleSheet.create({
 
   container: {
-
-    width: 170,
-
-    backgroundColor: Colors.card,
-
-    borderRadius: 20,
-
-    padding: 15,
-
-    marginRight: 15,
-
+    backgroundColor: "#FFFFFF",
+    borderRadius: 22,
+    padding: 18,
     marginBottom: 15,
 
-    alignItems: "center",
-
-    elevation: 6,
-
     shadowColor: "#000",
-
-    shadowOpacity: 0.25,
-
-    shadowRadius: 8,
-
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
     shadowOffset: {
-
       width: 0,
+      height: 3,
+    },
 
-      height: 3
-
-    }
-
+    elevation: 4,
   },
 
   cover: {
-
-    width: 130,
-
-    height: 130,
-
+    width: "100%",
+    height: 170,
     borderRadius: 18,
-
-    backgroundColor: Colors.primary,
+    backgroundColor: "#5856D6",
 
     justifyContent: "center",
-
     alignItems: "center",
 
-    marginBottom: 15
-
+    marginBottom: 16,
   },
 
   albumName: {
-
-    color: Colors.text,
-
-    fontSize: 17,
-
+    color: "#111827",
+    fontSize: 19,
     fontWeight: "700",
-
-    textAlign: "center"
-
   },
 
   artist: {
-
-    color: Colors.subtitle,
-
-    marginTop: 6,
-
-    fontSize: 14,
-
-    textAlign: "center"
-
+    color: "#6B7280",
+    marginTop: 4,
+    fontSize: 15,
   },
 
   count: {
-
     marginTop: 10,
-
     color: Colors.primary,
-
     fontWeight: "600",
-
-    fontSize: 13
-
-  }
+    fontSize: 14,
+  },
 
 });
