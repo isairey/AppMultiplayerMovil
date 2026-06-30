@@ -1,38 +1,22 @@
 import { useEffect } from "react";
 import {
     SafeAreaView,
-
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 
-
-
 import Slider from "@react-native-community/slider";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 
-import {
-    Ionicons
-} from "@expo/vector-icons";
-
-import Colors from "../constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
 
 import PlayerControls from "../components/PlayerControls";
-
+import Colors from "../constants/Colors";
 import { usePlayer } from "../hooks/usePlayer";
-import { useSongs } from "../hooks/useSongs";
 
 export default function PlayerScreen() {
-
-  const { id } = useLocalSearchParams();
-
-  const {
-
-    songs
-
-  } = useSongs();
 
   const {
 
@@ -43,8 +27,6 @@ export default function PlayerScreen() {
     position,
 
     duration,
-
-    play,
 
     pause,
 
@@ -62,54 +44,51 @@ export default function PlayerScreen() {
 
     toggleShuffle,
 
-    toggleRepeat
+    toggleRepeat,
+
+    updateProgress
 
   } = usePlayer();
 
-  // ===========================
-  // CARGAR CANCION
-  // ===========================
-
+  // Actualizar barra de progreso
   useEffect(() => {
 
-    if (!songs.length || !id) return;
+    const interval = setInterval(() => {
 
-    const index = songs.findIndex(s => s.id === id);
+      updateProgress();
 
-    if (index !== -1) {
+    }, 500);
 
-      play(songs[index], index);
+    return () => clearInterval(interval);
 
-    }
-
-  }, [songs, id]);
-
-  // ===========================
-  // FORMATO TIEMPO
-  // ===========================
+  }, []);
 
   function formatTime(ms: number) {
 
     if (!ms) return "0:00";
 
-    const sec = Math.floor(ms / 1000);
+    const totalSeconds = Math.floor(ms / 1000);
 
-    const min = Math.floor(sec / 60);
+    const minutes = Math.floor(totalSeconds / 60);
 
-    const rest = sec % 60;
+    const seconds = totalSeconds % 60;
 
-    return `${min}:${rest < 10 ? "0" : ""}${rest}`;
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
 
   }
 
   if (!currentSong) {
 
     return (
-      <View style={styles.container}>
-        <Text style={{ color: "#fff" }}>
-          Cargando...
+
+      <View style={styles.loading}>
+
+        <Text style={{ color: "#fff", fontSize: 18 }}>
+          No hay ninguna canción reproduciéndose
         </Text>
+
       </View>
+
     );
 
   }
@@ -118,70 +97,97 @@ export default function PlayerScreen() {
 
     <SafeAreaView style={styles.container}>
 
-      {/* BACK */}
-
       <TouchableOpacity
-        onPress={() => router.back()}
-        style={styles.back}
-      >
-        <Ionicons
-          name="chevron-down"
-          size={30}
-          color="#fff"
-        />
-      </TouchableOpacity>
 
-      {/* COVER */}
+        style={styles.back}
+
+        onPress={() => router.back()}
+
+      >
+
+        <Ionicons
+
+          name="chevron-down"
+
+          size={30}
+
+          color="#fff"
+
+        />
+
+      </TouchableOpacity>
 
       <View style={styles.coverContainer}>
 
         <View style={styles.cover}>
 
           <Ionicons
+
             name="musical-notes"
+
             size={100}
-            color={Colors.text}
+
+            color="#fff"
+
           />
 
         </View>
 
       </View>
 
-      {/* INFO */}
+      <Text
 
-      <Text style={styles.title} numberOfLines={1}>
-        {currentSong.filename?.replace(/\.[^/.]+$/, "")}
+        numberOfLines={1}
+
+        style={styles.title}
+
+      >
+
+        {currentSong.filename.replace(/\.[^/.]+$/, "")}
+
       </Text>
 
       <Text style={styles.artist}>
-        Artista desconocido
-      </Text>
 
-      {/* SLIDER */}
+        Artista desconocido
+
+      </Text>
 
       <View style={styles.sliderContainer}>
 
         <Text style={styles.time}>
+
           {formatTime(position)}
+
         </Text>
 
         <Slider
+
           style={{ flex: 1 }}
+
           minimumValue={0}
+
           maximumValue={duration}
+
           value={position}
+
           minimumTrackTintColor={Colors.primary}
-          maximumTrackTintColor="#444"
-          onSlidingComplete={seekTo}
+
+          maximumTrackTintColor="#555"
+
+          thumbTintColor={Colors.primary}
+
+          onSlidingComplete={(value) => seekTo(value)}
+
         />
 
         <Text style={styles.time}>
+
           {formatTime(duration)}
+
         </Text>
 
       </View>
-
-      {/* CONTROLES */}
 
       <PlayerControls
 
@@ -191,7 +197,19 @@ export default function PlayerScreen() {
 
         repeat={repeat}
 
-        onPlayPause={isPlaying ? pause : resume}
+        onPlayPause={() => {
+
+          if (isPlaying) {
+
+            pause();
+
+          } else {
+
+            resume();
+
+          }
+
+        }}
 
         onNext={next}
 
@@ -210,6 +228,18 @@ export default function PlayerScreen() {
 }
 
 const styles = StyleSheet.create({
+
+  loading: {
+
+    flex: 1,
+
+    backgroundColor: Colors.background,
+
+    justifyContent: "center",
+
+    alignItems: "center"
+
+  },
 
   container: {
 
@@ -231,19 +261,17 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
 
-    justifyContent: "center",
-
     marginTop: 40,
 
-    marginBottom: 30
+    marginBottom: 35
 
   },
 
   cover: {
 
-    width: 260,
+    width: 270,
 
-    height: 260,
+    height: 270,
 
     borderRadius: 25,
 
@@ -259,7 +287,7 @@ const styles = StyleSheet.create({
 
     color: "#fff",
 
-    fontSize: 22,
+    fontSize: 24,
 
     fontWeight: "bold",
 
@@ -273,9 +301,11 @@ const styles = StyleSheet.create({
 
     textAlign: "center",
 
-    marginTop: 5,
+    marginTop: 8,
 
-    marginBottom: 20
+    marginBottom: 30,
+
+    fontSize: 16
 
   },
 
@@ -285,9 +315,7 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
 
-    gap: 10,
-
-    marginVertical: 20
+    marginBottom: 30
 
   },
 
@@ -295,7 +323,9 @@ const styles = StyleSheet.create({
 
     color: Colors.subtitle,
 
-    fontSize: 12
+    width: 45,
+
+    textAlign: "center"
 
   }
 

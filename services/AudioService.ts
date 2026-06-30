@@ -10,30 +10,35 @@ class AudioService {
 
     try {
 
+      // Detener y liberar el audio anterior
       if (this.sound) {
 
-        await this.sound.unloadAsync();
-        this.sound = null;
+        try {
+          await this.sound.stopAsync();
+        } catch {}
 
+        try {
+          await this.sound.unloadAsync();
+        } catch {}
+
+        this.sound.setOnPlaybackStatusUpdate(null);
+
+        this.sound = null;
+        this.status = null;
       }
 
       const { sound } = await Audio.Sound.createAsync(
-
         { uri },
-
         {
           shouldPlay: true,
-          progressUpdateIntervalMillis: 500
+          progressUpdateIntervalMillis: 500,
         }
-
       );
 
       this.sound = sound;
 
       sound.setOnPlaybackStatusUpdate((status) => {
-
         this.status = status;
-
       });
 
     } catch (error) {
@@ -48,7 +53,13 @@ class AudioService {
 
     if (!this.sound) return;
 
-    await this.sound.playAsync();
+    const status = await this.sound.getStatusAsync();
+
+    if (!status.isLoaded) return;
+
+    if (!status.isPlaying) {
+      await this.sound.playAsync();
+    }
 
   }
 
@@ -56,7 +67,13 @@ class AudioService {
 
     if (!this.sound) return;
 
-    await this.sound.pauseAsync();
+    const status = await this.sound.getStatusAsync();
+
+    if (!status.isLoaded) return;
+
+    if (status.isPlaying) {
+      await this.sound.pauseAsync();
+    }
 
   }
 
@@ -64,7 +81,13 @@ class AudioService {
 
     if (!this.sound) return;
 
-    await this.sound.stopAsync();
+    try {
+
+      await this.sound.stopAsync();
+
+      await this.sound.setPositionAsync(0);
+
+    } catch {}
 
   }
 
@@ -72,15 +95,30 @@ class AudioService {
 
     if (!this.sound) return;
 
-    await this.sound.unloadAsync();
+    try {
+
+      await this.sound.stopAsync();
+
+    } catch {}
+
+    try {
+
+      await this.sound.unloadAsync();
+
+    } catch {}
 
     this.sound = null;
+    this.status = null;
 
   }
 
   async seek(position: number) {
 
     if (!this.sound) return;
+
+    const status = await this.sound.getStatusAsync();
+
+    if (!status.isLoaded) return;
 
     await this.sound.setPositionAsync(position);
 
@@ -112,11 +150,9 @@ class AudioService {
 
   async isPlaying() {
 
-    if (!this.sound) return false;
+    const status = await this.getStatus();
 
-    const status = await this.sound.getStatusAsync();
-
-    if (!status.isLoaded) return false;
+    if (!status || !status.isLoaded) return false;
 
     return status.isPlaying;
 
@@ -124,11 +160,9 @@ class AudioService {
 
   async getDuration() {
 
-    if (!this.sound) return 0;
+    const status = await this.getStatus();
 
-    const status = await this.sound.getStatusAsync();
-
-    if (!status.isLoaded) return 0;
+    if (!status || !status.isLoaded) return 0;
 
     return status.durationMillis ?? 0;
 
@@ -136,13 +170,11 @@ class AudioService {
 
   async getPosition() {
 
-    if (!this.sound) return 0;
+    const status = await this.getStatus();
 
-    const status = await this.sound.getStatusAsync();
+    if (!status || !status.isLoaded) return 0;
 
-    if (!status.isLoaded) return 0;
-
-    return status.positionMillis;
+    return status.positionMillis ?? 0;
 
   }
 
