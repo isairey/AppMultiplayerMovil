@@ -5,7 +5,6 @@ import {
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 
-import Colors from "../constants/Colors";
 
 interface Props {
   isPlaying: boolean;
@@ -20,153 +19,95 @@ interface Props {
 }
 
 export default function PlayerControls({
-
   isPlaying,
   shuffle,
   repeat,
-
   onPlayPause,
   onNext,
   onPrevious,
   onShuffle,
   onRepeat
-
 }: Props) {
 
   return (
-
     <View style={styles.container}>
 
-      <TouchableOpacity
-        style={styles.smallButton}
-        onPress={onShuffle}
-      >
+      <TouchableOpacity style={styles.smallButton} onPress={onShuffle}>
         <Ionicons
           name="shuffle"
-          size={26}
-          color={
-            shuffle
-              ? Colors.primary
-              : Colors.subtitle
-          }
+          size={24}
+          color={shuffle ? "#1C1C1E" : "#8E8E93"}
         />
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.smallButton}
-        onPress={onPrevious}
-      >
+      <TouchableOpacity style={styles.smallButton} onPress={onPrevious}>
         <Ionicons
           name="play-skip-back"
-          size={34}
-          color={Colors.text}
+          size={32}
+          color="#8E8E93"
         />
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.playButton}
-        onPress={onPlayPause}
-      >
+      <TouchableOpacity style={styles.playButton} onPress={onPlayPause}>
         <MaterialIcons
-          name={
-            isPlaying
-              ? "pause"
-              : "play-arrow"
-          }
-          size={42}
-          color="#FFFFFF"
+          name={isPlaying ? "pause" : "play-arrow"}
+          size={44}
+          color="#1C1C1E"
         />
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.smallButton}
-        onPress={onNext}
-      >
+      <TouchableOpacity style={styles.smallButton} onPress={onNext}>
         <Ionicons
           name="play-skip-forward"
-          size={34}
-          color={Colors.text}
+          size={32}
+          color="#8E8E93"
         />
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.smallButton}
-        onPress={onRepeat}
-      >
+      <TouchableOpacity style={styles.smallButton} onPress={onRepeat}>
         <Ionicons
           name="repeat"
-          size={26}
-          color={
-            repeat
-              ? Colors.primary
-              : Colors.subtitle
-          }
+          size={24}
+          color={repeat ? "#1C1C1E" : "#8E8E93"}
         />
       </TouchableOpacity>
 
     </View>
-
   );
-
 }
 
 const styles = StyleSheet.create({
 
   container: {
-
     flexDirection: "row",
-
     justifyContent: "space-evenly",
-
     alignItems: "center",
-
     marginTop: 25,
-
     marginBottom: 15
-
   },
 
   smallButton: {
-
     width: 55,
-
     height: 55,
-
     borderRadius: 28,
-
     justifyContent: "center",
-
-    alignItems: "center"
-
+    alignItems: "center",
+    backgroundColor: "transparent"
   },
 
   playButton: {
-
-    width: 80,
-
-    height: 80,
-
-    borderRadius: 40,
-
+    width: 78,
+    height: 78,
+    borderRadius: 39,
     justifyContent: "center",
-
     alignItems: "center",
-
-    backgroundColor: Colors.primary,
-
-    elevation: 8,
+    backgroundColor: "#FFFFFF",
 
     shadowColor: "#000",
-
-    shadowOffset: {
-      width: 0,
-      height: 5
-    },
-
-    shadowOpacity: 0.3,
-
-    shadowRadius: 6
-
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    elevation: 4
   }
 
 });
