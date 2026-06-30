@@ -1,4 +1,3 @@
-
 import {
     FlatList,
     SafeAreaView,
@@ -14,74 +13,40 @@ import { router } from "expo-router";
 interface Playlist {
   id: string;
   name: string;
-  songs: number;
   icon: keyof typeof Ionicons.glyphMap;
   color: string;
 }
 
 export default function PlaylistsScreen() {
-
   const playlists: Playlist[] = [
-
-    {
-      id: "1",
-      name: "Favoritos",
-      songs: 0,
-      icon: "heart",
-      color: "#FF2D55"
-    },
-
-    {
-      id: "2",
-      name: "Reproducidas recientemente",
-      songs: 0,
-      icon: "time",
-      color: "#5856D6"
-    },
-
-    {
-      id: "3",
-      name: "Agregadas recientemente",
-      songs: 0,
-      icon: "add-circle",
-      color: "#34C759"
-    },
-
-    {
-      id: "4",
-      name: "Más reproducidas",
-      songs: 0,
-      icon: "trending-up",
-      color: "#FF9500"
-    }
-
+    { id: "favorites", name: "Favoritos", icon: "heart", color: "#FF2D55" },
+    { id: "recent", name: "Reproducidas recientemente", icon: "time", color: "#5856D6" },
+    { id: "added", name: "Agregadas recientemente", icon: "add-circle", color: "#34C759" },
+    { id: "top", name: "Más reproducidas", icon: "trending-up", color: "#FF9500" },
   ];
 
-  return (
+  function openPlaylist(item: Playlist) {
+    router.push({
+      pathname: "/playlist-detail",
+      params: {
+        id: item.id,
+        name: item.name,
+      },
+    });
+  }
 
+  return (
     <SafeAreaView style={styles.container}>
 
-      {/* Header */}
-
       <View style={styles.header}>
-
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
-
-          <Ionicons
-            name="chevron-back"
-            size={26}
-            color="#111"
-          />
-
+          <Ionicons name="chevron-back" size={26} color="#111" />
         </TouchableOpacity>
 
-        <Text style={styles.title}>
-          Playlists
-        </Text>
-
+        <Text style={styles.title}>Playlists</Text>
       </View>
 
       <Text style={styles.subtitle}>
@@ -89,66 +54,41 @@ export default function PlaylistsScreen() {
       </Text>
 
       <FlatList
-
         data={playlists}
-
         keyExtractor={(item) => item.id}
-
-        showsVerticalScrollIndicator={false}
-
-        contentContainerStyle={{
-          paddingBottom: 30
-        }}
-
+        contentContainerStyle={{ paddingBottom: 30 }}
         renderItem={({ item }) => (
-
-          <TouchableOpacity style={styles.card}>
+          <TouchableOpacity
+            style={styles.card}
+            activeOpacity={0.8}
+            onPress={() => openPlaylist(item)}
+          >
 
             <View
               style={[
                 styles.iconContainer,
-                {
-                  backgroundColor: `${item.color}20`
-                }
+                { backgroundColor: `${item.color}20` }
               ]}
             >
-
               <Ionicons
                 name={item.icon}
                 size={34}
                 color={item.color}
               />
-
             </View>
 
             <View style={{ flex: 1 }}>
-
-              <Text style={styles.playlistName}>
-                {item.name}
-              </Text>
-
-              <Text style={styles.songCount}>
-                {item.songs} canciones
-              </Text>
-
+              <Text style={styles.playlistName}>{item.name}</Text>
+              <Text style={styles.songCount}>Ver canciones</Text>
             </View>
 
-            <Ionicons
-              name="chevron-forward"
-              size={22}
-              color="#C7C7CC"
-            />
-
+            <Ionicons name="chevron-forward" size={22} color="#C7C7CC" />
           </TouchableOpacity>
-
         )}
-
       />
 
     </SafeAreaView>
-
   );
-
 }
 
 const styles = StyleSheet.create({
