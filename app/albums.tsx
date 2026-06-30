@@ -1,254 +1,194 @@
-```tsx
 import {
-  FlatList,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    FlatList,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
-import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 import AlbumCard from "../components/AlbumCard";
 import { useSongs } from "../hooks/useSongs";
 
+interface Song {
+  id: string;
+  uri: string;
+  filename: string;
+  album?: string;
+}
+
 interface Album {
   id: string;
   title: string;
-  songs: number;
+  songs: Song[];
 }
 
 export default function AlbumsScreen() {
+  const router = useRouter();
+  const { songs } = useSongs() as { songs: Song[] };
 
-  const { songs } = useSongs();
+  // =========================
+  // AGRUPAR ÁLBUMES
+  // =========================
+  const grouped = songs.reduce<Record<string, Song[]>>((acc, song) => {
+    const albumName =
+      (song as any).album ||
+      song.filename?.split("-")[0]?.trim() ||
+      "Sin álbum";
 
-  // Agrupar canciones por nombre de álbum (temporal)
-  const albums: Album[] = [];
-
-  songs.forEach((song) => {
-
-    const albumName = "Álbum desconocido";
-
-    const existing = albums.find(a => a.title === albumName);
-
-    if (existing) {
-
-      existing.songs++;
-
-    } else {
-
-      albums.push({
-
-        id: albumName,
-
-        title: albumName,
-
-        songs: 1
-
-      });
-
+    if (!acc[albumName]) {
+      acc[albumName] = [];
     }
 
+    acc[albumName].push(song);
+    return acc;
+  }, {});
+
+  const albums: Album[] = Object.keys(grouped).map((key) => ({
+    id: key,
+    title: key,
+    songs: grouped[key],
+  }));
+
+  // =========================
+  // ABRIR ALBUM (SAFE ROUTING)
+  // =========================
+  function openAlbum(album: Album) {
+  router.push({
+    pathname: "/album-detail",
+    params: {
+      id: album.id,
+    },
   });
+}
 
   return (
-
     <SafeAreaView style={styles.container}>
 
+      {/* HEADER */}
       <View style={styles.header}>
-
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
-
-          <Ionicons
-            name="chevron-back"
-            size={26}
-            color="#111"
-          />
-
+          <Ionicons name="chevron-back" size={26} color="#111" />
         </TouchableOpacity>
 
-        <Text style={styles.title}>
-          Álbumes
-        </Text>
-
+        <Text style={styles.title}>Álbumes</Text>
       </View>
 
       <Text style={styles.subtitle}>
         {albums.length} álbum(es)
       </Text>
 
+      {/* LISTA */}
       <FlatList
-
         data={albums}
-
         keyExtractor={(item) => item.id}
-
-        showsVerticalScrollIndicator={false}
-
+        numColumns={2}
+        columnWrapperStyle={{ justifyContent: "space-between" }}
         contentContainerStyle={{
-          paddingBottom: 30
+          paddingBottom: 40,
+          gap: 12,
         }}
-
         renderItem={({ item }) => (
-
           <AlbumCard
-            album={item}
+            album={{
+              id: item.id,
+              title: item.title,
+              songs: item.songs.length,
+            }}
+            onPress={() => openAlbum(item)}
           />
-
         )}
-
-        ListEmptyComponent={
-
-          <View style={styles.empty}>
-
-            <Ionicons
-              name="albums-outline"
-              size={80}
-              color="#C7C7CC"
-            />
-
-            <Text style={styles.emptyTitle}>
-              No hay álbumes
-            </Text>
-
-            <Text style={styles.emptySubtitle}>
-              Los álbumes aparecerán cuando tu música tenga esta información.
-            </Text>
-
-          </View>
-
-        }
-
       />
-
     </SafeAreaView>
-
   );
-
 }
 
 const styles = StyleSheet.create({
 
   container: {
-
     flex: 1,
-
-    backgroundColor: "#F5F5F7",
-
+    backgroundColor: "#F2F2F7",
     paddingTop: 55,
-
-    paddingHorizontal: 20
-
+    paddingHorizontal: 20,
   },
 
   header: {
-
     flexDirection: "row",
-
     alignItems: "center",
-
-    marginBottom: 12
-
+    marginBottom: 15,
   },
 
   backButton: {
-
     width: 42,
-
     height: 42,
-
-    borderRadius: 21,
-
+    borderRadius: 12,
     backgroundColor: "#FFFFFF",
-
     justifyContent: "center",
-
     alignItems: "center",
 
-    marginRight: 15,
-
-    elevation: 4,
+    marginRight: 12,
 
     shadowColor: "#000",
-
-    shadowOpacity: 0.08,
-
-    shadowRadius: 8,
-
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
     shadowOffset: {
-
       width: 0,
-
-      height: 3
-
-    }
-
+      height: 3,
+    },
+    elevation: 3,
   },
 
   title: {
-
-    fontSize: 32,
-
+    fontSize: 34,
     fontWeight: "700",
-
-    color: "#111827"
-
+    color: "#1C1C1E",
+    letterSpacing: -0.5,
   },
 
   subtitle: {
-
-    fontSize: 15,
-
-    color: "#6B7280",
-
-    marginBottom: 20
-
+    fontSize: 14,
+    color: "#8E8E93",
+    marginBottom: 18,
   },
 
+  // FlatList spacing
+  listContent: {
+    paddingBottom: 40,
+  },
+
+  columnWrapper: {
+    justifyContent: "space-between",
+    marginBottom: 14,
+  },
+
+  // Empty state
   empty: {
-
     flex: 1,
-
     justifyContent: "center",
-
     alignItems: "center",
-
-    marginTop: 120
-
+    marginTop: 120,
   },
 
   emptyTitle: {
-
     marginTop: 18,
-
     fontSize: 22,
-
     fontWeight: "700",
-
-    color: "#111827"
-
+    color: "#1C1C1E",
   },
 
   emptySubtitle: {
-
     marginTop: 10,
-
     textAlign: "center",
-
-    color: "#6B7280",
-
+    color: "#8E8E93",
     fontSize: 15,
-
     lineHeight: 22,
-
-    paddingHorizontal: 30
-
-  }
+    paddingHorizontal: 30,
+  },
 
 });
-```
