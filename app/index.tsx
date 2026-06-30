@@ -13,15 +13,16 @@ export default function Home() {
   return (
     <SafeAreaView style={styles.container}>
 
-      {/* Título */}
+      {/* Header centrado */}
+<View style={styles.headerCenter}>
+  <Text style={styles.title}>
+    Mi Música
+  </Text>
 
-      <Text style={styles.title}>
-        Mi Música
-      </Text>
-
-      <Text style={styles.subtitle}>
-        Biblioteca local
-      </Text>
+  <Text style={styles.subtitle}>
+    Biblioteca local
+  </Text>
+</View>
 
       {/* Buscar */}
 
@@ -139,6 +140,25 @@ export default function Home() {
 
 const styles = StyleSheet.create({
 
+  headerCenter: {
+  alignItems: "center",
+  marginBottom: 28,
+},
+
+title: {
+  fontSize: 38,
+  fontWeight: "700",
+  color: "#111827",
+  textAlign: "center",
+},
+
+subtitle: {
+  fontSize: 16,
+  color: "#6B7280",
+  marginTop: 6,
+  textAlign: "center",
+},
+
   container: {
     flex: 1,
     backgroundColor: "#F5F5F7",
@@ -146,18 +166,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
 
-  title: {
-    fontSize: 38,
-    fontWeight: "700",
-    color: "#111827",
-  },
 
-  subtitle: {
-    fontSize: 17,
-    color: "#6B7280",
-    marginTop: 6,
-    marginBottom: 28,
-  },
 
   searchBar: {
     height: 54,

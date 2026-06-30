@@ -9,53 +9,38 @@ export interface Song {
 
 export function usePlayer() {
   const {
-
     currentSong,
-
     playlist,
-
     currentIndex,
-
     isPlaying,
-
     duration,
-
     position,
-
     shuffle,
-
     repeat,
-
     volume,
 
+    // acciones player
     play,
-
     pause,
-
     resume,
-
     stop,
-
     next,
-
     previous,
-
     seekTo,
-
     setPlaylist,
-
     toggleShuffle,
-
     toggleRepeat,
-
     setVolume,
+    updateProgress,
 
-    updateProgress
-
+    // ❤️ favoritos (FALTABAN)
+    favorites,
+    addFavorite,
+    removeFavorite,
+    isFavorite,
   } = usePlayerStore();
 
   return {
-
     // Estado actual
     currentSong,
     playlist,
@@ -67,7 +52,11 @@ export function usePlayer() {
     repeat,
     volume,
 
-    // Acciones principales
+    // ❤️ estado favoritos
+    favorites,
+    isFavorite,
+
+    // Acciones principales player
     play,
     pause,
     resume,
@@ -76,11 +65,15 @@ export function usePlayer() {
     previous,
     seekTo,
 
-    // Extras
+    // Extras player
     setPlaylist,
     toggleShuffle,
     toggleRepeat,
     setVolume,
-    updateProgress
+    updateProgress,
+
+    // ❤️ acciones favoritos
+    addFavorite,
+    removeFavorite,
   };
 }
