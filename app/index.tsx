@@ -67,7 +67,10 @@ export default function Home() {
 
         <Pressable
           style={styles.card}
-          onPress={() => router.push("/albums")}
+          onPress={() => {
+  console.log("CLICK ALBUMS");
+  router.push("/albums");
+}}
         >
           <View style={[styles.iconContainer, { backgroundColor: "#E8E9FF" }]}>
             <Ionicons

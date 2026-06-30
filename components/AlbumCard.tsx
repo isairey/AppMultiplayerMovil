@@ -1,13 +1,6 @@
-import React from "react";
-import {
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
-
 import { Ionicons } from "@expo/vector-icons";
-import Colors from "../constants/Colors";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export interface Album {
   id: string;
@@ -21,101 +14,70 @@ interface Props {
   onPress?: () => void;
 }
 
-export default function AlbumCard({
-  album,
-  onPress,
-}: Props) {
-
+export default function AlbumCard({ album, onPress }: Props) {
   return (
-
-    <TouchableOpacity
-      style={styles.container}
-      activeOpacity={0.8}
-      onPress={onPress}
-    >
+    <TouchableOpacity style={styles.card} activeOpacity={0.9} onPress={onPress}>
 
       <View style={styles.cover}>
-
-        <Ionicons
-          name="albums"
-          size={55}
-          color="#fff"
-        />
-
+        <Ionicons name="albums" size={40} color="#fff" />
       </View>
 
-      <Text
-        numberOfLines={1}
-        style={styles.albumName}
-      >
+      <Text numberOfLines={1} style={styles.title}>
         {album.title}
       </Text>
 
-      <Text
-        numberOfLines={1}
-        style={styles.artist}
-      >
-        {album.artist ?? "Artista desconocido"}
-      </Text>
-
-      <Text style={styles.count}>
+      <Text numberOfLines={1} style={styles.subtitle}>
         {album.songs} canciones
       </Text>
 
+      {album.artist && (
+        <Text numberOfLines={1} style={styles.artist}>
+          {album.artist}
+        </Text>
+      )}
+
     </TouchableOpacity>
-
   );
-
 }
 
 const styles = StyleSheet.create({
-
-  container: {
+  card: {
+    flex: 1,
     backgroundColor: "#FFFFFF",
-    borderRadius: 22,
-    padding: 18,
-    marginBottom: 15,
-
+    borderRadius: 20,
+    padding: 12,
+    marginBottom: 14,
     shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-
-    elevation: 4,
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 3,
   },
 
   cover: {
-    width: "100%",
-    height: 170,
-    borderRadius: 18,
+    height: 120,
+    borderRadius: 16,
     backgroundColor: "#5856D6",
-
     justifyContent: "center",
     alignItems: "center",
-
-    marginBottom: 16,
+    marginBottom: 10,
   },
 
-  albumName: {
-    color: "#111827",
-    fontSize: 19,
+  title: {
+    fontSize: 15,
     fontWeight: "700",
+    color: "#1C1C1E",
+  },
+
+  subtitle: {
+    marginTop: 4,
+    fontSize: 13,
+    color: "#8E8E93",
   },
 
   artist: {
-    color: "#6B7280",
-    marginTop: 4,
-    fontSize: 15,
+    marginTop: 2,
+    fontSize: 12,
+    color: "#A1A1A6",
   },
-
-  count: {
-    marginTop: 10,
-    color: Colors.primary,
-    fontWeight: "600",
-    fontSize: 14,
-  },
-
 });
