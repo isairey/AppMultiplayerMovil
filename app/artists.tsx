@@ -1,4 +1,3 @@
-
 import {
     FlatList,
     SafeAreaView,
@@ -13,63 +12,71 @@ import { router } from "expo-router";
 
 import { useSongs } from "../hooks/useSongs";
 
+interface Song {
+  id: string;
+  uri: string;
+  filename: string;
+  artist?: string;
+}
+
 interface Artist {
   id: string;
   name: string;
-  songs: number;
+  songs: Song[];
 }
 
 export default function ArtistsScreen() {
 
-  const { songs } = useSongs();
+  const { songs } = useSongs() as { songs: Song[] };
 
-  const artists: Artist[] = [];
+  // =========================
+  // AGRUPAR ARTISTAS
+  // =========================
+  const grouped = songs.reduce<Record<string, Song[]>>((acc, song) => {
 
-  songs.forEach(() => {
+    const artistName =
+      song.artist ||
+      song.filename?.split("-")[0]?.trim() ||
+      "Artista desconocido";
 
-    const artistName = "Artista desconocido";
-
-    const existing = artists.find(
-      artist => artist.name === artistName
-    );
-
-    if (existing) {
-
-      existing.songs++;
-
-    } else {
-
-      artists.push({
-
-        id: artistName,
-
-        name: artistName,
-
-        songs: 1
-
-      });
-
+    if (!acc[artistName]) {
+      acc[artistName] = [];
     }
 
-  });
+    acc[artistName].push(song);
+
+    return acc;
+  }, {});
+
+  const artists: Artist[] = Object.keys(grouped).map((key) => ({
+    id: key,
+    name: key,
+    songs: grouped[key],
+  }));
+
+  // =========================
+  // ABRIR ARTISTA
+  // =========================
+  function openArtist(artist: Artist) {
+    router.push({
+      pathname: "/artist-detail",
+      params: {
+        artist: JSON.stringify(artist),
+      },
+    });
+  }
 
   return (
-
     <SafeAreaView style={styles.container}>
 
+      {/* HEADER */}
       <View style={styles.header}>
 
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
-
-          <Ionicons
-            name="chevron-back"
-            size={26}
-            color="#111"
-          />
-
+          <Ionicons name="chevron-back" size={26} color="#111" />
         </TouchableOpacity>
 
         <Text style={styles.title}>
@@ -82,271 +89,121 @@ export default function ArtistsScreen() {
         {artists.length} artista(s)
       </Text>
 
+      {/* LISTA */}
       <FlatList
-
         data={artists}
-
         keyExtractor={(item) => item.id}
-
-        showsVerticalScrollIndicator={false}
-
-        contentContainerStyle={{
-          paddingBottom: 30
-        }}
-
+        contentContainerStyle={{ paddingBottom: 30 }}
         renderItem={({ item }) => (
-
-          <TouchableOpacity style={styles.card}>
+          <TouchableOpacity
+            style={styles.card}
+            activeOpacity={0.8}
+            onPress={() => openArtist(item)}
+          >
 
             <View style={styles.avatar}>
-
-              <Ionicons
-                name="person"
-                size={36}
-                color="#34C759"
-              />
-
+              <Ionicons name="person" size={34} color="#34C759" />
             </View>
 
             <View style={{ flex: 1 }}>
-
               <Text style={styles.artistName}>
                 {item.name}
               </Text>
 
               <Text style={styles.songCount}>
-                {item.songs} canción(es)
+                {item.songs.length} canción(es)
               </Text>
-
             </View>
 
             <Ionicons
               name="chevron-forward"
-              size={22}
+              size={20}
               color="#C7C7CC"
             />
 
           </TouchableOpacity>
-
         )}
-
-        ListEmptyComponent={
-
-          <View style={styles.empty}>
-
-            <Ionicons
-              name="people-outline"
-              size={80}
-              color="#C7C7CC"
-            />
-
-            <Text style={styles.emptyTitle}>
-              No hay artistas
-            </Text>
-
-            <Text style={styles.emptySubtitle}>
-              Los artistas aparecerán cuando tu música tenga esa información.
-            </Text>
-
-          </View>
-
-        }
-
       />
 
     </SafeAreaView>
-
   );
-
 }
 
 const styles = StyleSheet.create({
 
   container: {
-
     flex: 1,
-
-    backgroundColor: "#F5F5F7",
-
+    backgroundColor: "#F2F2F7",
     paddingTop: 55,
-
-    paddingHorizontal: 20
-
+    paddingHorizontal: 20,
   },
 
   header: {
-
     flexDirection: "row",
-
     alignItems: "center",
-
-    marginBottom: 12
-
+    marginBottom: 15,
   },
 
   backButton: {
-
     width: 42,
-
     height: 42,
-
-    borderRadius: 21,
-
+    borderRadius: 12,
     backgroundColor: "#FFFFFF",
-
     justifyContent: "center",
-
     alignItems: "center",
-
-    marginRight: 15,
-
-    elevation: 4,
-
+    marginRight: 12,
     shadowColor: "#000",
-
-    shadowOpacity: 0.08,
-
-    shadowRadius: 8,
-
-    shadowOffset: {
-
-      width: 0,
-
-      height: 3
-
-    }
-
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
   },
 
   title: {
-
-    fontSize: 32,
-
+    fontSize: 34,
     fontWeight: "700",
-
-    color: "#111827"
-
+    color: "#1C1C1E",
   },
 
   subtitle: {
-
-    fontSize: 15,
-
-    color: "#6B7280",
-
-    marginBottom: 20
-
+    fontSize: 14,
+    color: "#8E8E93",
+    marginBottom: 18,
   },
 
   card: {
-
     flexDirection: "row",
-
     alignItems: "center",
-
     backgroundColor: "#FFFFFF",
-
     borderRadius: 18,
-
     padding: 16,
-
     marginBottom: 12,
-
-    elevation: 3,
-
     shadowColor: "#000",
-
     shadowOpacity: 0.06,
-
-    shadowRadius: 8,
-
-    shadowOffset: {
-
-      width: 0,
-
-      height: 3
-
-    }
-
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
   },
 
   avatar: {
-
-    width: 60,
-
-    height: 60,
-
-    borderRadius: 30,
-
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: "#E8FFF1",
-
     justifyContent: "center",
-
     alignItems: "center",
-
-    marginRight: 16
-
+    marginRight: 14,
   },
 
   artistName: {
-
-    fontSize: 18,
-
+    fontSize: 17,
     fontWeight: "700",
-
-    color: "#111827"
-
+    color: "#1C1C1E",
   },
 
   songCount: {
-
-    marginTop: 5,
-
-    color: "#6B7280",
-
-    fontSize: 14
-
+    marginTop: 4,
+    color: "#8E8E93",
+    fontSize: 14,
   },
-
-  empty: {
-
-    flex: 1,
-
-    justifyContent: "center",
-
-    alignItems: "center",
-
-    marginTop: 120
-
-  },
-
-  emptyTitle: {
-
-    marginTop: 18,
-
-    fontSize: 22,
-
-    fontWeight: "700",
-
-    color: "#111827"
-
-  },
-
-  emptySubtitle: {
-
-    marginTop: 10,
-
-    textAlign: "center",
-
-    color: "#6B7280",
-
-    fontSize: 15,
-
-    lineHeight: 22,
-
-    paddingHorizontal: 30
-
-  }
-
 });
-
