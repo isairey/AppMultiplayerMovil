@@ -1,66 +1,91 @@
-import { useMemo } from "react";
+
 import {
     FlatList,
     SafeAreaView,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from "react-native";
 
-import Colors from "../constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
-import SongCard from "../components/SongCard";
-
-import { usePlayer } from "../hooks/usePlayer";
-import { useSongs } from "../hooks/useSongs";
+interface Playlist {
+  id: string;
+  name: string;
+  songs: number;
+  icon: keyof typeof Ionicons.glyphMap;
+  color: string;
+}
 
 export default function PlaylistsScreen() {
 
-  const { songs, recent } = useSongs();
+  const playlists: Playlist[] = [
 
-  const {
+    {
+      id: "1",
+      name: "Favoritos",
+      songs: 0,
+      icon: "heart",
+      color: "#FF2D55"
+    },
 
-    play,
+    {
+      id: "2",
+      name: "Reproducidas recientemente",
+      songs: 0,
+      icon: "time",
+      color: "#5856D6"
+    },
 
-    setPlaylist
+    {
+      id: "3",
+      name: "Agregadas recientemente",
+      songs: 0,
+      icon: "add-circle",
+      color: "#34C759"
+    },
 
-  } = usePlayer();
+    {
+      id: "4",
+      name: "Más reproducidas",
+      songs: 0,
+      icon: "trending-up",
+      color: "#FF9500"
+    }
 
-  // ===========================
-  // PLAYLISTS BASE
-  // ===========================
-
-  const playlists = useMemo(() => {
-
-    return [
-
-      {
-        id: "recent",
-        name: "⏱️ Recientes",
-        songs: recent(20)
-      },
-
-      {
-        id: "all",
-        name: "🎧 Todas las canciones",
-        songs: songs
-      }
-
-    ];
-
-  }, [songs]);
+  ];
 
   return (
 
     <SafeAreaView style={styles.container}>
 
-      <Text style={styles.title}>
-        📂 Playlists
-      </Text>
+      {/* Header */}
+
+      <View style={styles.header}>
+
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+
+          <Ionicons
+            name="chevron-back"
+            size={26}
+            color="#111"
+          />
+
+        </TouchableOpacity>
+
+        <Text style={styles.title}>
+          Playlists
+        </Text>
+
+      </View>
 
       <Text style={styles.subtitle}>
-        Tu música organizada automáticamente
+        Tus listas de reproducción
       </Text>
 
       <FlatList
@@ -69,57 +94,52 @@ export default function PlaylistsScreen() {
 
         keyExtractor={(item) => item.id}
 
-        contentContainerStyle={{ paddingBottom: 120 }}
+        showsVerticalScrollIndicator={false}
+
+        contentContainerStyle={{
+          paddingBottom: 30
+        }}
 
         renderItem={({ item }) => (
 
-          <View style={styles.playlist}>
+          <TouchableOpacity style={styles.card}>
 
-            <Text style={styles.playlistTitle}>
-              {item.name}
-            </Text>
+            <View
+              style={[
+                styles.iconContainer,
+                {
+                  backgroundColor: `${item.color}20`
+                }
+              ]}
+            >
 
-            <Text style={styles.count}>
-              {item.songs.length} canciones
-            </Text>
+              <Ionicons
+                name={item.icon}
+                size={34}
+                color={item.color}
+              />
 
-            <FlatList
+            </View>
 
-              data={item.songs.slice(0, 5)}
+            <View style={{ flex: 1 }}>
 
-              keyExtractor={(song) => song.id}
+              <Text style={styles.playlistName}>
+                {item.name}
+              </Text>
 
-              scrollEnabled={false}
+              <Text style={styles.songCount}>
+                {item.songs} canciones
+              </Text>
 
-              renderItem={({ item: song }) => (
+            </View>
 
-                <TouchableOpacity
-
-                  onPress={async () => {
-
-                    setPlaylist(item.songs);
-
-                    await play(song);
-
-                  }}
-
-                >
-
-                  <SongCard
-
-                    song={song}
-
-                    onPress={() => {}}
-
-                  />
-
-                </TouchableOpacity>
-
-              )}
-
+            <Ionicons
+              name="chevron-forward"
+              size={22}
+              color="#C7C7CC"
             />
 
-          </View>
+          </TouchableOpacity>
 
         )}
 
@@ -137,62 +157,145 @@ const styles = StyleSheet.create({
 
     flex: 1,
 
-    backgroundColor: Colors.background,
+    backgroundColor: "#F5F5F7",
 
-    padding: 18
+    paddingTop: 55,
+
+    paddingHorizontal: 20
+
+  },
+
+  header: {
+
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    marginBottom: 12
+
+  },
+
+  backButton: {
+
+    width: 42,
+
+    height: 42,
+
+    borderRadius: 21,
+
+    backgroundColor: "#FFFFFF",
+
+    justifyContent: "center",
+
+    alignItems: "center",
+
+    marginRight: 15,
+
+    elevation: 4,
+
+    shadowColor: "#000",
+
+    shadowOpacity: 0.08,
+
+    shadowRadius: 8,
+
+    shadowOffset: {
+
+      width: 0,
+
+      height: 3
+
+    }
 
   },
 
   title: {
 
-    fontSize: 28,
+    fontSize: 32,
 
-    fontWeight: "bold",
+    fontWeight: "700",
 
-    color: Colors.text
+    color: "#111827"
 
   },
 
   subtitle: {
 
-    color: Colors.subtitle,
+    fontSize: 15,
 
-    marginTop: 4,
+    color: "#6B7280",
 
     marginBottom: 20
 
   },
 
-  playlist: {
+  card: {
 
-    marginBottom: 25,
+    flexDirection: "row",
 
-    backgroundColor: Colors.card,
+    alignItems: "center",
 
-    padding: 15,
+    backgroundColor: "#FFFFFF",
 
-    borderRadius: 18
+    borderRadius: 18,
+
+    padding: 16,
+
+    marginBottom: 14,
+
+    elevation: 3,
+
+    shadowColor: "#000",
+
+    shadowOpacity: 0.06,
+
+    shadowRadius: 8,
+
+    shadowOffset: {
+
+      width: 0,
+
+      height: 3
+
+    }
 
   },
 
-  playlistTitle: {
+  iconContainer: {
 
-    color: Colors.text,
+    width: 60,
+
+    height: 60,
+
+    borderRadius: 16,
+
+    justifyContent: "center",
+
+    alignItems: "center",
+
+    marginRight: 16
+
+  },
+
+  playlistName: {
 
     fontSize: 18,
 
-    fontWeight: "700"
+    fontWeight: "700",
+
+    color: "#111827"
 
   },
 
-  count: {
+  songCount: {
 
-    color: Colors.subtitle,
+    marginTop: 4,
 
-    marginBottom: 10,
+    color: "#6B7280",
 
-    marginTop: 4
+    fontSize: 14
 
   }
 
 });
+

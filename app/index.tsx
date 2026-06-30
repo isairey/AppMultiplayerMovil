@@ -1,5 +1,4 @@
 import {
-  FlatList,
   Pressable,
   SafeAreaView,
   StyleSheet,
@@ -10,377 +9,214 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
-import MiniPlayer from "../components/MiniPlayer";
-import SongCard from "../components/SongCard";
-
-import { usePlayer } from "../hooks/usePlayer";
-import { useSongs } from "../hooks/useSongs";
-
 export default function Home() {
-
-  const { songs } = useSongs();
-
-  const { play, setPlaylist } = usePlayer();
-
-  async function playSong(index: number) {
-
-    const song = songs[index];
-
-    setPlaylist(songs);
-
-    await play(song, index);
-
-    router.push("/player");
-
-  }
-
   return (
-
     <SafeAreaView style={styles.container}>
+
+      {/* Título */}
 
       <Text style={styles.title}>
         Mi Música
       </Text>
 
       <Text style={styles.subtitle}>
-        {songs.length} canciones disponibles
+        Biblioteca local
       </Text>
 
-      {/* Barra de búsqueda */}
+      {/* Buscar */}
 
-      <Pressable style={styles.searchBar}>
-
+      <Pressable
+        style={styles.searchBar}
+        onPress={() => router.push("/songs")}
+      >
         <Ionicons
           name="search"
           size={20}
-          color="#999"
+          color="#8E8E93"
         />
 
         <Text style={styles.searchText}>
-          Buscar canciones
+          Buscar canciones...
         </Text>
-
       </Pressable>
 
-      {/* Biblioteca */}
+      {/* Opciones */}
 
-      <View style={styles.libraryCard}>
-
-        <View style={styles.iconCircle}>
-
-          <Ionicons
-            name="musical-notes"
-            size={38}
-            color="#FF2D55"
-          />
-
-        </View>
-
-        <View style={{ flex: 1 }}>
-
-          <Text style={styles.libraryTitle}>
-            Biblioteca Local
-          </Text>
-
-          <Text style={styles.librarySubtitle}>
-            Toda la música almacenada en tu dispositivo.
-          </Text>
-
-        </View>
-
-      </View>
-
-      {/* Botones */}
-
-      <View style={styles.actions}>
+      <View style={styles.grid}>
 
         <Pressable
-          style={styles.playButton}
-          onPress={() => songs.length && playSong(0)}
+          style={styles.card}
+          onPress={() => router.push("/songs")}
         >
+          <View style={[styles.iconContainer, { backgroundColor: "#FFE4EC" }]}>
+            <Ionicons
+              name="musical-notes"
+              size={38}
+              color="#FF2D55"
+            />
+          </View>
 
-          <Ionicons
-            name="play"
-            size={20}
-            color="#FFF"
-          />
-
-          <Text style={styles.playText}>
-            Reproducir
+          <Text style={styles.cardTitle}>
+            Canciones
           </Text>
 
+          <Text style={styles.cardSubtitle}>
+            Toda tu música
+          </Text>
         </Pressable>
 
-        <Pressable style={styles.shuffleButton}>
+        <Pressable
+          style={styles.card}
+          onPress={() => router.push("/albums")}
+        >
+          <View style={[styles.iconContainer, { backgroundColor: "#E8E9FF" }]}>
+            <Ionicons
+              name="albums"
+              size={38}
+              color="#5856D6"
+            />
+          </View>
 
-          <Ionicons
-            name="shuffle"
-            size={20}
-            color="#FF2D55"
-          />
+          <Text style={styles.cardTitle}>
+            Álbumes
+          </Text>
 
+          <Text style={styles.cardSubtitle}>
+            Organizados por álbum
+          </Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.card}
+          onPress={() => router.push("/artists")}
+        >
+          <View style={[styles.iconContainer, { backgroundColor: "#E8FFF1" }]}>
+            <Ionicons
+              name="people"
+              size={38}
+              color="#34C759"
+            />
+          </View>
+
+          <Text style={styles.cardTitle}>
+            Artistas
+          </Text>
+
+          <Text style={styles.cardSubtitle}>
+            Explorar artistas
+          </Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.card}
+          onPress={() => router.push("/playlists")}
+        >
+          <View style={[styles.iconContainer, { backgroundColor: "#FFF3E5" }]}>
+            <Ionicons
+              name="list"
+              size={38}
+              color="#FF9500"
+            />
+          </View>
+
+          <Text style={styles.cardTitle}>
+            Playlists
+          </Text>
+
+          <Text style={styles.cardSubtitle}>
+            Tus listas de reproducción
+          </Text>
         </Pressable>
 
       </View>
 
-      <Text style={styles.section}>
-        Canciones
-      </Text>
-
-      <FlatList
-
-        data={songs}
-
-        keyExtractor={(item) => item.id}
-
-        contentContainerStyle={{
-          paddingBottom: 120
-        }}
-
-        showsVerticalScrollIndicator={false}
-
-        renderItem={({ item, index }) => (
-
-          <SongCard
-
-            song={item}
-
-            onPress={() => playSong(index)}
-
-          />
-
-        )}
-
-      />
-
-      <MiniPlayer />
-
     </SafeAreaView>
-
   );
-
 }
 
 const styles = StyleSheet.create({
 
   container: {
-
     flex: 1,
-
     backgroundColor: "#F5F5F7",
-
     paddingHorizontal: 22,
-
-    paddingTop: 55
-
+    paddingTop: 60,
   },
 
   title: {
-
     fontSize: 38,
-
     fontWeight: "700",
-
-    color: "#111827"
-
+    color: "#111827",
   },
 
   subtitle: {
-
-    fontSize: 16,
-
+    fontSize: 17,
     color: "#6B7280",
-
-    marginTop: 5,
-
-    marginBottom: 25
-
+    marginTop: 6,
+    marginBottom: 28,
   },
 
   searchBar: {
-
-    height: 52,
-
+    height: 54,
     backgroundColor: "#ECECEC",
-
-    borderRadius: 18,
-
+    borderRadius: 16,
     flexDirection: "row",
-
     alignItems: "center",
-
     paddingHorizontal: 18,
-
-    marginBottom: 25
-
+    marginBottom: 30,
   },
 
   searchText: {
-
     marginLeft: 10,
-
-    color: "#9CA3AF",
-
-    fontSize: 16
-
+    color: "#8E8E93",
+    fontSize: 16,
   },
 
-  libraryCard: {
-
-    backgroundColor: "#FFF",
-
-    borderRadius: 25,
-
-    padding: 20,
-
+  grid: {
     flexDirection: "row",
-
-    alignItems: "center",
-
-    marginBottom: 25,
-
-    shadowColor: "#000",
-
-    shadowOpacity: 0.08,
-
-    shadowRadius: 12,
-
-    shadowOffset: {
-
-      width: 0,
-
-      height: 5
-
-    },
-
-    elevation: 5
-
-  },
-
-  iconCircle: {
-
-    width: 70,
-
-    height: 70,
-
-    borderRadius: 35,
-
-    backgroundColor: "#FFE4EC",
-
-    justifyContent: "center",
-
-    alignItems: "center",
-
-    marginRight: 18
-
-  },
-
-  libraryTitle: {
-
-    fontSize: 22,
-
-    fontWeight: "700",
-
-    color: "#111"
-
-  },
-
-  librarySubtitle: {
-
-    marginTop: 6,
-
-    color: "#6B7280",
-
-    fontSize: 15,
-
-    lineHeight: 22
-
-  },
-
-  actions: {
-
-    flexDirection: "row",
-
+    flexWrap: "wrap",
     justifyContent: "space-between",
-
-    marginBottom: 28
-
   },
 
-  playButton: {
-
-    flex: 1,
-
-    height: 54,
-
-    borderRadius: 18,
-
-    backgroundColor: "#FF2D55",
-
-    flexDirection: "row",
-
-    justifyContent: "center",
-
+  card: {
+    width: "48%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    paddingVertical: 28,
     alignItems: "center",
-
-    marginRight: 12
-
-  },
-
-  playText: {
-
-    color: "#FFF",
-
-    fontSize: 17,
-
-    fontWeight: "700",
-
-    marginLeft: 10
-
-  },
-
-  shuffleButton: {
-
-    width: 54,
-
-    height: 54,
-
-    borderRadius: 18,
-
-    backgroundColor: "#FFF",
-
-    justifyContent: "center",
-
-    alignItems: "center",
+    marginBottom: 18,
 
     shadowColor: "#000",
-
     shadowOpacity: 0.08,
-
     shadowRadius: 10,
-
     shadowOffset: {
-
       width: 0,
-
-      height: 4
-
+      height: 5,
     },
-
-    elevation: 5
-
+    elevation: 5,
   },
 
-  section: {
+  iconContainer: {
+    width: 75,
+    height: 75,
+    borderRadius: 38,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 18,
+  },
 
-    fontSize: 24,
-
+  cardTitle: {
+    fontSize: 20,
     fontWeight: "700",
-
     color: "#111827",
+  },
 
-    marginBottom: 18
-
-  }
+  cardSubtitle: {
+    marginTop: 6,
+    fontSize: 14,
+    color: "#6B7280",
+    textAlign: "center",
+    paddingHorizontal: 12,
+  },
 
 });

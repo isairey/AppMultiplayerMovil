@@ -1,13 +1,16 @@
-import { useMemo } from "react";
+
 import {
     FlatList,
     SafeAreaView,
     StyleSheet,
     Text,
-    View
+    TouchableOpacity,
+    View,
 } from "react-native";
 
-import Colors from "../constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+
 import { useSongs } from "../hooks/useSongs";
 
 interface Artist {
@@ -20,61 +23,63 @@ export default function ArtistsScreen() {
 
   const { songs } = useSongs();
 
-  // ===========================
-  // AGRUPAR ARTISTAS
-  // ===========================
+  const artists: Artist[] = [];
 
-  const artists: Artist[] = useMemo(() => {
+  songs.forEach(() => {
 
-    const map: Record<string, Artist> = {};
+    const artistName = "Artista desconocido";
 
-    songs.forEach(song => {
+    const existing = artists.find(
+      artist => artist.name === artistName
+    );
 
-      // Simulación de artista
-      // (MediaLibrary normalmente no lo provee)
-      const raw = song.filename;
+    if (existing) {
 
-      let artistName = "Artista desconocido";
+      existing.songs++;
 
-      // Intento de extracción tipo "Artista - Canción"
-      if (raw.includes("-")) {
+    } else {
 
-        artistName = raw.split("-")[0].trim();
+      artists.push({
 
-      }
+        id: artistName,
 
-      if (!map[artistName]) {
+        name: artistName,
 
-        map[artistName] = {
+        songs: 1
 
-          id: artistName,
+      });
 
-          name: artistName,
+    }
 
-          songs: 0
-
-        };
-
-      }
-
-      map[artistName].songs += 1;
-
-    });
-
-    return Object.values(map);
-
-  }, [songs]);
+  });
 
   return (
 
     <SafeAreaView style={styles.container}>
 
-      <Text style={styles.title}>
-        🎤 Artistas
-      </Text>
+      <View style={styles.header}>
+
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+
+          <Ionicons
+            name="chevron-back"
+            size={26}
+            color="#111"
+          />
+
+        </TouchableOpacity>
+
+        <Text style={styles.title}>
+          Artistas
+        </Text>
+
+      </View>
 
       <Text style={styles.subtitle}>
-        Tu música por intérprete
+        {artists.length} artista(s)
       </Text>
 
       <FlatList
@@ -83,29 +88,69 @@ export default function ArtistsScreen() {
 
         keyExtractor={(item) => item.id}
 
-        contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+
+        contentContainerStyle={{
+          paddingBottom: 30
+        }}
 
         renderItem={({ item }) => (
 
-          <View style={styles.card}>
+          <TouchableOpacity style={styles.card}>
 
-            <View style={styles.avatar} />
+            <View style={styles.avatar}>
+
+              <Ionicons
+                name="person"
+                size={36}
+                color="#34C759"
+              />
+
+            </View>
 
             <View style={{ flex: 1 }}>
 
-              <Text style={styles.name}>
+              <Text style={styles.artistName}>
                 {item.name}
               </Text>
 
-              <Text style={styles.count}>
-                {item.songs} canciones
+              <Text style={styles.songCount}>
+                {item.songs} canción(es)
               </Text>
 
             </View>
 
-          </View>
+            <Ionicons
+              name="chevron-forward"
+              size={22}
+              color="#C7C7CC"
+            />
+
+          </TouchableOpacity>
 
         )}
+
+        ListEmptyComponent={
+
+          <View style={styles.empty}>
+
+            <Ionicons
+              name="people-outline"
+              size={80}
+              color="#C7C7CC"
+            />
+
+            <Text style={styles.emptyTitle}>
+              No hay artistas
+            </Text>
+
+            <Text style={styles.emptySubtitle}>
+              Los artistas aparecerán cuando tu música tenga esa información.
+            </Text>
+
+          </View>
+
+        }
 
       />
 
@@ -121,35 +166,75 @@ const styles = StyleSheet.create({
 
     flex: 1,
 
-    backgroundColor: Colors.background,
+    backgroundColor: "#F5F5F7",
 
-    padding: 18
+    paddingTop: 55,
+
+    paddingHorizontal: 20
+
+  },
+
+  header: {
+
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    marginBottom: 12
+
+  },
+
+  backButton: {
+
+    width: 42,
+
+    height: 42,
+
+    borderRadius: 21,
+
+    backgroundColor: "#FFFFFF",
+
+    justifyContent: "center",
+
+    alignItems: "center",
+
+    marginRight: 15,
+
+    elevation: 4,
+
+    shadowColor: "#000",
+
+    shadowOpacity: 0.08,
+
+    shadowRadius: 8,
+
+    shadowOffset: {
+
+      width: 0,
+
+      height: 3
+
+    }
 
   },
 
   title: {
 
-    fontSize: 28,
+    fontSize: 32,
 
-    fontWeight: "bold",
+    fontWeight: "700",
 
-    color: Colors.text
+    color: "#111827"
 
   },
 
   subtitle: {
 
-    color: Colors.subtitle,
+    fontSize: 15,
 
-    marginTop: 4,
+    color: "#6B7280",
 
     marginBottom: 20
-
-  },
-
-  list: {
-
-    paddingBottom: 100
 
   },
 
@@ -159,48 +244,109 @@ const styles = StyleSheet.create({
 
     alignItems: "center",
 
-    backgroundColor: Colors.card,
+    backgroundColor: "#FFFFFF",
 
-    padding: 14,
+    borderRadius: 18,
 
-    borderRadius: 16,
+    padding: 16,
 
-    marginBottom: 12
+    marginBottom: 12,
+
+    elevation: 3,
+
+    shadowColor: "#000",
+
+    shadowOpacity: 0.06,
+
+    shadowRadius: 8,
+
+    shadowOffset: {
+
+      width: 0,
+
+      height: 3
+
+    }
 
   },
 
   avatar: {
 
-    width: 50,
+    width: 60,
 
-    height: 50,
+    height: 60,
 
-    borderRadius: 25,
+    borderRadius: 30,
 
-    backgroundColor: Colors.primary,
+    backgroundColor: "#E8FFF1",
 
-    marginRight: 12
+    justifyContent: "center",
 
-  },
+    alignItems: "center",
 
-  name: {
-
-    color: Colors.text,
-
-    fontSize: 16,
-
-    fontWeight: "700"
+    marginRight: 16
 
   },
 
-  count: {
+  artistName: {
 
-    color: Colors.subtitle,
+    fontSize: 18,
 
-    marginTop: 4,
+    fontWeight: "700",
 
-    fontSize: 13
+    color: "#111827"
+
+  },
+
+  songCount: {
+
+    marginTop: 5,
+
+    color: "#6B7280",
+
+    fontSize: 14
+
+  },
+
+  empty: {
+
+    flex: 1,
+
+    justifyContent: "center",
+
+    alignItems: "center",
+
+    marginTop: 120
+
+  },
+
+  emptyTitle: {
+
+    marginTop: 18,
+
+    fontSize: 22,
+
+    fontWeight: "700",
+
+    color: "#111827"
+
+  },
+
+  emptySubtitle: {
+
+    marginTop: 10,
+
+    textAlign: "center",
+
+    color: "#6B7280",
+
+    fontSize: 15,
+
+    lineHeight: 22,
+
+    paddingHorizontal: 30
 
   }
 
 });
+
