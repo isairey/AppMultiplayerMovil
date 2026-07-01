@@ -7,16 +7,14 @@ import {
     View,
 } from "react-native";
 
+import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
 import { router } from "expo-router";
-
-import { Ionicons } from "@expo/vector-icons";
 
 import PlayerControls from "../components/PlayerControls";
 import { usePlayer } from "../hooks/usePlayer";
 
 export default function PlayerScreen() {
-
   const {
     currentSong,
     isPlaying,
@@ -31,7 +29,12 @@ export default function PlayerScreen() {
     repeat,
     toggleShuffle,
     toggleRepeat,
-    updateProgress
+    updateProgress,
+
+    // ❤️ favoritos
+    addFavorite,
+    removeFavorite,
+    isFavorite,
   } = usePlayer();
 
   useEffect(() => {
@@ -50,6 +53,16 @@ export default function PlayerScreen() {
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   }
 
+  function toggleFav() {
+    if (!currentSong) return;
+
+    if (isFavorite(currentSong.id)) {
+      removeFavorite(currentSong.id);
+    } else {
+      addFavorite(currentSong);
+    }
+  }
+
   if (!currentSong) {
     return (
       <View style={styles.loading}>
@@ -63,24 +76,37 @@ export default function PlayerScreen() {
   return (
     <SafeAreaView style={styles.container}>
 
+      {/* BACK */}
       <TouchableOpacity style={styles.back} onPress={() => router.back()}>
         <Ionicons name="chevron-down" size={26} color="#1C1C1E" />
       </TouchableOpacity>
 
+      {/* COVER */}
       <View style={styles.coverContainer}>
         <View style={styles.cover}>
           <Ionicons name="musical-notes" size={80} color="#1C1C1E" />
         </View>
       </View>
 
+      {/* TITLE */}
       <Text numberOfLines={1} style={styles.title}>
         {currentSong.filename.replace(/\.[^/.]+$/, "")}
       </Text>
 
-      <Text style={styles.artist}>
-        Artista desconocido
-      </Text>
+      {/* ARTIST + ❤️ */}
+      <View style={styles.artistRow}>
+        <Text style={styles.artist}>Artista desconocido</Text>
 
+        <TouchableOpacity onPress={toggleFav} style={styles.heartBtn}>
+          <Ionicons
+            name={isFavorite(currentSong.id) ? "heart" : "heart-outline"}
+            size={24}
+            color="#FF2D55"
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* SLIDER */}
       <View style={styles.sliderContainer}>
         <Text style={styles.time}>{formatTime(position)}</Text>
 
@@ -98,14 +124,12 @@ export default function PlayerScreen() {
         <Text style={styles.time}>{formatTime(duration)}</Text>
       </View>
 
+      {/* CONTROLS */}
       <PlayerControls
         isPlaying={isPlaying}
         shuffle={shuffle}
         repeat={repeat}
-        onPlayPause={() => {
-          if (isPlaying) pause();
-          else resume();
-        }}
+        onPlayPause={() => (isPlaying ? pause() : resume())}
         onNext={next}
         onPrevious={previous}
         onShuffle={toggleShuffle}
@@ -123,20 +147,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F5F7",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20
+    padding: 20,
   },
 
   loadingText: {
     color: "#1C1C1E",
     fontSize: 16,
     opacity: 0.7,
-    textAlign: "center"
+    textAlign: "center",
   },
 
   container: {
     flex: 1,
     backgroundColor: "#F5F5F7",
-    padding: 20
+    padding: 20,
   },
 
   back: {
@@ -150,13 +174,13 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowRadius: 10,
-    elevation: 2
+    elevation: 2,
   },
 
   coverContainer: {
     alignItems: "center",
     marginTop: 50,
-    marginBottom: 30
+    marginBottom: 25,
   },
 
   cover: {
@@ -169,7 +193,7 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.06,
     shadowRadius: 20,
-    elevation: 3
+    elevation: 3,
   },
 
   title: {
@@ -177,28 +201,42 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "600",
     textAlign: "center",
-    marginTop: 10
+    marginTop: 10,
+  },
+
+  artistRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 25,
+    gap: 10,
   },
 
   artist: {
     color: "#8E8E93",
-    textAlign: "center",
-    marginTop: 6,
-    marginBottom: 25,
-    fontSize: 14
+    fontSize: 14,
+  },
+
+  heartBtn: {
+    padding: 6,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
 
   sliderContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 25
+    marginBottom: 25,
   },
 
   time: {
     color: "#8E8E93",
     width: 45,
     textAlign: "center",
-    fontSize: 12
-  }
-
+    fontSize: 12,
+  },
 });
